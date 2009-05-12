@@ -40,6 +40,27 @@ class Section :
         notes="%s">''' % (self.id, self.title, self.synopsis, self.notes)
         return section
 
+class Character:
+    
+    def __init__(self):
+        self.name = ""
+        self.synopsis = ""
+        self.notes = ""
+        self.id = None
+
+    def set_id(self):
+        d = datetime.datetime.now()
+        id = time.mktime(d.timetuple())
+        self.id = str(id)
+        return self.id
+
+    def to_string(self):
+        section = '''<section id="%s" 
+        title="%s"
+        synopsis="%s" 
+        notes="%s">''' % (self.id, self.title, self.synopsis, self.notes)
+        return section
+
 class Loader:
     
     def __init__(self, document):
@@ -137,7 +158,8 @@ class Document(list):
         self.page = page
         self.buffer = buffer
         self.synopsis = Section()
-        self.synopsis
+        self.character = []
+        self.location = []
         self.filename = ''
         self.filepath = ''
 
@@ -194,6 +216,18 @@ class Document(list):
         for section in self:
             if section.id == id:
                 return section
+        return None
+
+    def get_character_by_id(self, id):
+        for i in self.character:
+            if i.id == id:
+                return i
+        return None
+
+    def get_location_by_id(self, id):  
+        for i in self.location:
+            if i.id == id:
+                return i
         return None
 
 class Model:

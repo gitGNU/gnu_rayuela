@@ -1,4 +1,4 @@
-# Copyright © 1995-2008 by Fredrik Lundh
+# Copyright 1995-2008 by Fredrik Lundh
 
 # By obtaining, using, and/or copying this software and/or its associated 
 # documentation, you agree that you have read, understood, and will comply

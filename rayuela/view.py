@@ -54,6 +54,12 @@ class View:
                "on_paste_activate": self.controller.paste,
                "on_delete_activate": self.controller.delete,
                "on_preferences_activate": self.controller.preferences,
+               "on_new_character_activate": self.controller.new_character,
+               "on_edit_character_activate":self.controller.edit_character,
+               "on_delete_character_activate":self.controller.delete_character,
+               "on_new_location_activate":self.controller.new_location,
+               "on_edit_location_activate":self.controller.edit_location,
+               "on_delete_location_activate":self.controller.delete_location,
                "on_spell_check_activate": self.controller.spell_check,
                "on_about_activate": self.controller.about,
                "on_new_button_clicked": self.controller.new,
@@ -83,7 +89,13 @@ class View:
         window = self.widget_tree.get_widget('window')
         window.maximize()
 
+        # Project Treeview
         self._set_tree_view_()
+
+        # Character Treeview
+        self._set_character_tree_view_()
+        # Location Treeview
+
 
         # [NOTE]
         # Not supported in v0.1
@@ -108,7 +120,25 @@ class View:
         treeview.connect('button_press_event', self._project_tree_row_press_)
         treeview.set_model(treestore)
         treeview.append_column(file_column)
-
+    
+    def _set_character_tree_view_(self):
+        # (Project/Character name, project page, character ID)
+        treestore = gtk.TreeStore(str, int, str)
+        treeview = self.widget_tree.get_widget('character_treeview')
+        # Columns
+        name_column = gtk.TreeViewColumn('Name')
+        # Cells
+        cell = gtk.CellRendererText()
+        name_column.pack_start(cell, True)
+        name_column.add_attribute(cell, 'text', 0)
+        # Treeview
+        treeview.connect('button_press_event', self._generic_tree_row_press_)
+        treeview.set_model(treestore)
+        treeview.append_column(name_column)
+    
+    # [TODO]
+    # The _project_tree_row_press_ and the _generic_tree_row_press_ have a few
+    # differences, refactor!.
     def _project_tree_row_press_(self, obj, event):
         if event.type == gtk.gdk._2BUTTON_PRESS:
             model, iter = obj.get_selection().get_selected()
@@ -130,6 +160,27 @@ class View:
                 section = document.synopsis
             self.section_dialog(section)
     
+    def _generic_tree_row_press_(self, obj, event):
+        widget_name = obj.get_name()
+        if event.type == gtk.gdk._2BUTTON_PRESS:
+            model, iter = obj.get_selection().get_selected()
+            if iter == None:
+                return
+            page = model.get_value(iter, 1)
+            id = model.get_value(iter, 2)
+            notebook = self.widget_tree.get_widget("main_notebook")
+            notebook.set_current_page(page)
+            document = self.model.get_document_by_page(page)
+            if widget_name == 'character_treeview':
+                profile = document.get_character_by_id(id)
+                self.character_dialog(profile)
+            elif widget_name == 'location_treeview':
+                location = document.get_location_by_id(id)
+                self.location_dialog(location)
+            else:
+                error_dialog("NotImplementedError")
+    #.
+
     # [NOTE]
     # This features are not supported in v0.1
     def _set_add_section_box_(self):
@@ -205,7 +256,11 @@ class View:
         dialog.destroy()
 
         return result
+    
+    def character_dialog(self, profile): error_dialog("Not implemented")
 
+    def location_dialog(self, profile): error_dialog("Not implemented")
+        
     def _create_tag_table_(self):
         tag_table = gtk.TextTagTable()
             

@@ -295,7 +295,19 @@ class Controller:
     #.
 
     def preferences(self, obj): view.error_dialog("Not implemented")
+    
+    def new_character(self, obj): view.error_dialog("Not implemented")
+    
+    def edit_character(self, obj): view.error_dialog("Not implemented")
+    
+    def delete_character(self, obj): view.error_dialog("Not implemented")
 
+    def new_location(self, obj): view.error_dialog("Not implemented")
+
+    def edit_location(self, obj): view.error_dialog("Not implemented")
+
+    def delete_location(self, obj): view.error_dialog("Not implemented")
+               
     def spell_check(self, obj): view.error_dialog("Not implemented")
 
     def about(self, obj):
