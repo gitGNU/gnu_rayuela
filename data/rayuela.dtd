@@ -1,0 +1,36 @@
+<!DOCTYPE book [
+
+<!ELEMENT book (characters?, sceneries?, content)>
+<!ELEMENT characters (profile*)>
+<!ELEMENT profile (general, physical, psychological, social)>
+<!ELEMENT general (name, age, job?, origin?, residency?, religion?)>
+<!ELEMENT physical (#PCDATA)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT age (#PCDATA)>
+<!ELEMENT origin (#PCDATA)>
+<!ELEMENT job (#PCDATA)>
+<!ELEMENT religion (#PCDATA)>
+<!ELEMENT residency (#PCDATA)>
+<!ELEMENT height (#PCDATA)>
+<!ELEMENT weight (#PCDATA)>
+<!ELEMENT appearance (#PCDATA)>
+<!ELEMENT psychological (#PCDATA)>
+<!ELEMENT social (#PCDATA)>
+<!ELEMENT locations(location*)>
+<!ELEMENT location(name, description?, landscape?, weather?, tradition?)>
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT landscape (#PCDATA)>
+<!ELEMENT weather (#PCDATA)>
+<!ELEMENT tradition (#PCDATA)>
+<!ELEMENT content (part* | chapter* | section* | para*)>
+<!ELEMENT part (title?, synopsis?, notes?, (chapter* | section* | para*))>
+<!ELEMENT chapter (title?, synopsis?, notes? (section* | para*))>
+<!ELEMENT section (title?, synopsis?, notes? para*)>
+<!ELEMENT title (#PCDATA)>
+<!ELEMENT synopsis (#PCDATA)>
+<!ELEMENT notes (#PCDATA)>
+<!ELEMENT para (#PCDATA)>
+
+<!ATTLIST book type (novel|story) novel>
+
+]>

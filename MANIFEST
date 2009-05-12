@@ -1,0 +1,11 @@
+COPYING
+README
+setup.py
+rayuela/__init__.py
+rayuela/controller.py
+rayuela/model.py
+rayuela/scanner.py
+rayuela/view.py
+rayuela/glade/__init__.py
+rayuela/glade/rayuela.glade
+scripts/rayuela
