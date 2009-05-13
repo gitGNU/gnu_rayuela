@@ -43,8 +43,20 @@ class Section :
 class Character:
     
     def __init__(self):
+        # General
         self.name = ""
-        self.synopsis = ""
+        self.age = ""
+        self.job = ""
+        self.origin = ""
+        self.residency = ""
+        self.religion = ""
+        # physical: appereance, dress, weight, height, etc
+        self.physical = ""
+        # psychological: traumas, dreams, fobias
+        self.psychological = ""
+        # Social: relationship with other character, social status
+        self.social = ""
+        # Notes
         self.notes = ""
         self.id = None
 
@@ -55,11 +67,48 @@ class Character:
         return self.id
 
     def to_string(self):
-        section = '''<section id="%s" 
-        title="%s"
-        synopsis="%s" 
-        notes="%s">''' % (self.id, self.title, self.synopsis, self.notes)
-        return section
+        profile = '''<character id="%s" 
+        name = "%s"
+        age = "%s"
+        job = "%s"
+        origin = "%s"
+        residency = "%s"
+        religion = "%s"
+        physical = "%s"
+        psychological = "%s"
+        social = "%s"
+        notes = "%s">''' % (self.id, self.name, self.age, self.job, 
+                            self.origin, self.residency, self.religion,
+                            self.physical, self.psychological, self.social,
+                            self.notes)
+        return profile
+
+class Location:
+    
+    def __init__(self):
+        # General
+        self.name = ""
+        self.description = ""
+        self.landscape = ""
+        self.weather = ""
+        self.tradition = ""
+        self.id = None
+
+    def set_id(self):
+        d = datetime.datetime.now()
+        id = time.mktime(d.timetuple())
+        self.id = str(id)
+        return self.id
+
+    def to_string(self):
+        profile = '''<location id="%s" 
+        name = "%s"
+        description = "%s"
+        landscape = "%s"
+        weather = "%s"
+        tradition = "%s">''' % (self.id, self.name, self.description,
+                                self.landscape, self.weather, self.tradition)
+        return profile
 
 class Loader:
     
@@ -77,10 +126,41 @@ class Loader:
             self.stack.append(tag)
         if tag == 'sections':
             self.stack.append(tag)
+        if tag == 'characters':
+            self.stack.append(tag)
+        if tag == 'locations':
+            self.stack.append(tag)
         if tag == 'content':
             self.stack.append(tag)
 
         # Handle tags
+        if tag == 'character':
+            assert self.stack[-1] == 'characters'
+            character = Character()
+            character.id = attrib['id']
+            character.name = attrib['name']
+            character.age = attrib["age"]
+            character.job = attrib["job"]
+            character.origin = attrib["origin"]
+            character.residency = attrib["residency"]
+            character.religion = attrib["religion"]
+            character.physical = attrib["physical"]
+            character.psychological = attrib["psychological"]
+            character.social = attrib["social"]
+            character.notes = attrib["notes"]
+            self.document.character.append(character)
+
+        if tag == 'location':
+            assert self.stack[-1] == 'locations'
+            location = Location()
+            location.id = attrib["id"] 
+            location.name = attrib["name"] 
+            location.description = attrib["description"] 
+            location.landscape = attrib["landscape"] 
+            location.weather = attrib["weather"] 
+            location.tradition = attrib["tradition"] 
+            self.document.location.append(location)
+
         if tag == 'section':
             if self.stack[-1] == 'sections':
                 if attrib['id'] == 'synopsis':
@@ -118,6 +198,12 @@ class Loader:
 
     def end(self, tag):
         if tag == 'sections':
+            opentag = self.stack.pop()
+            assert opentag == tag
+        if tag == 'characters':
+            opentag = self.stack.pop()
+            assert opentag == tag
+        if tag == 'locations':
             opentag = self.stack.pop()
             assert opentag == tag
         if tag == 'content':
@@ -185,9 +271,6 @@ class Document(list):
         else:
             self.filepath, self.filename = os.path.split(filename)
         
-        # [TODO] priority: high
-        # This should save the XML file.
-
         # sections:
         sections = "<sections>\n"
         sections += self.synopsis.to_string()
@@ -195,20 +278,32 @@ class Document(list):
             sections += section.to_string()
         sections += "</sections>\n" 
         
+        # characters:
+        characters = "<characters>\n"
+        for n in self.character:
+            characters += n.to_string()
+        characters += "</characters>\n" 
+
+        # locations:
+        locations = "<locations>\n"
+        for n in self.location:
+            locations += n.to_string()
+        locations += "</locations>\n" 
+
         # document:
         document = '''<rayuela>
+        %s
+        %s
         %s
         <content>
         %s
         </content>
         </rayuela>
-        ''' % (sections, txt)
+        ''' % (sections, characters, locations, txt.strip())
 
         fh = open(filename, 'w')
         fh.write(document)
         fh.close()
-        # and reload the buffer.
-        #.
 
         self.buffer.set_modified(False)
         

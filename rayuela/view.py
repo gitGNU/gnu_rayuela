@@ -94,8 +94,9 @@ class View:
 
         # Character Treeview
         self._set_character_tree_view_()
-        # Location Treeview
 
+        # Location Treeview
+        self._set_location_tree_view_()
 
         # [NOTE]
         # Not supported in v0.1
@@ -135,7 +136,22 @@ class View:
         treeview.connect('button_press_event', self._generic_tree_row_press_)
         treeview.set_model(treestore)
         treeview.append_column(name_column)
-    
+
+    def _set_location_tree_view_(self):
+        # (Project/Location name, project page, location ID)
+        treestore = gtk.TreeStore(str, int, str)
+        treeview = self.widget_tree.get_widget('location_treeview')
+        # Columns
+        name_column = gtk.TreeViewColumn('Name')
+        # Cells
+        cell = gtk.CellRendererText()
+        name_column.pack_start(cell, True)
+        name_column.add_attribute(cell, 'text', 0)
+        # Treeview
+        treeview.connect('button_press_event', self._generic_tree_row_press_)
+        treeview.set_model(treestore)
+        treeview.append_column(name_column)
+   
     # [TODO]
     # The _project_tree_row_press_ and the _generic_tree_row_press_ have a few
     # differences, refactor!.
@@ -257,7 +273,125 @@ class View:
 
         return result
     
-    def character_dialog(self, profile): error_dialog("Not implemented")
+    def character_dialog(self, profile):
+
+        result = gtk.RESPONSE_CANCEL
+
+        widget_tree = gtk.glade.XML(self.glade_file, "character_dialog")
+        dialog = widget_tree.get_widget("character_dialog")
+        
+        if profile.id:
+            # Name
+            widget = widget_tree.get_widget("character_name_entry")
+            widget.set_text(profile.name)
+
+            # Age
+            widget = widget_tree.get_widget("character_age_entry")
+            widget.set_text(profile.age)
+
+            # Job
+            widget = widget_tree.get_widget("character_job_entry")
+            widget.set_text(profile.job)
+
+            # Origin
+            widget = widget_tree.get_widget("character_origin_entry")
+            widget.set_text(profile.origin)
+
+            # Residency
+            widget = widget_tree.get_widget("character_residency_entry")
+            widget.set_text(profile.residency)
+
+            # Religion
+            widget = widget_tree.get_widget("character_religion_entry")
+            widget.set_text(profile.religion)
+
+            # physical
+            widget = widget_tree.get_widget("character_physical_textview")
+            buffer = widget.get_buffer()
+            buffer.set_text(profile.physical)
+
+            # psychological
+            widget = widget_tree.get_widget("character_psychological_textview")
+            buffer = widget.get_buffer()
+            buffer.set_text(profile.psychological)
+
+            # social
+            widget = widget_tree.get_widget("character_social_textview")
+            buffer = widget.get_buffer()
+            buffer.set_text(profile.social)
+
+            # notes
+            widget = widget_tree.get_widget("character_notes_textview")
+            buffer = widget.get_buffer()
+            buffer.set_text(profile.notes)
+                        
+            # [NOTE]
+            # The dialog is modal by default. But it doesn't matter whether is
+            # modal or not, pygtk doesn't allow dialogs to be modal.
+            dialog.set_modal(True)
+            #.
+
+        else:
+            profile.set_id()
+
+        result = dialog.run()
+        if result == gtk.RESPONSE_OK:
+            
+            # Name
+            widget = widget_tree.get_widget("character_name_entry")
+            profile.name = widget.get_text()
+
+            # Age
+            widget = widget_tree.get_widget("character_age_entry")
+            profile.age = widget.get_text()
+
+            # Job
+            widget = widget_tree.get_widget("character_job_entry")
+            profile.job = widget.get_text()
+
+            # Origin
+            widget = widget_tree.get_widget("character_origin_entry")
+            profile.origin = widget.get_text()
+
+            # Residency
+            widget = widget_tree.get_widget("character_residency_entry")
+            profile.residency = widget.get_text()
+
+            # Religion
+            widget = widget_tree.get_widget("character_religion_entry")
+            profile.religion = widget.get_text()
+
+            # physical
+            widget = widget_tree.get_widget("character_physical_textview")
+            buffer = widget.get_buffer()
+            start = buffer.get_start_iter()
+            end = buffer.get_end_iter()
+            profile.physical = buffer.get_text(start, end)
+
+            # psychological
+            widget = widget_tree.get_widget("character_psychological_textview")
+            buffer = widget.get_buffer()
+            start = buffer.get_start_iter()
+            end = buffer.get_end_iter()
+            profile.psychological = buffer.get_text(start, end)
+
+            # social
+            widget = widget_tree.get_widget("character_social_textview")
+            buffer = widget.get_buffer()
+            start = buffer.get_start_iter()
+            end = buffer.get_end_iter()
+            profile.social = buffer.get_text(start, end)
+
+            # notes
+            widget = widget_tree.get_widget("character_notes_textview")
+            buffer = widget.get_buffer()
+            start = buffer.get_start_iter()
+            end = buffer.get_end_iter()
+            profile.notes = buffer.get_text(start, end)
+        
+        dialog.destroy()
+
+        return result
 
     def location_dialog(self, profile): error_dialog("Not implemented")
         
@@ -333,6 +467,34 @@ class View:
                                                    document.page,
                                                    section.id])
                 
+        # Characters
+        tree = self.widget_tree.get_widget('character_treeview')
+        store = tree.get_model()
+        store.clear()
+        for document in self.model.documents:
+            if not document.filename:
+                document.filename = 'untitled'
+            root = store.append(None, [document.filename, 
+                                       document.page, 
+                                       ''])
+            for n in document.character:
+                node = store.append(root, [n.name, 
+                                           document.page,
+                                           n.id])
+        # Locations 
+        tree = self.widget_tree.get_widget('location_treeview')
+        store = tree.get_model()
+        store.clear()
+        for document in self.model.documents:
+            if not document.filename:
+                document.filename = 'untitled'
+            root = store.append(None, [document.filename, 
+                                       document.page, 
+                                       ''])
+            for n in document.location:
+                node = store.append(root, [n.name, 
+                                           document.page,
+                                           n.id])
         # [TODO]
         # * update the tab of the main notebook
 
