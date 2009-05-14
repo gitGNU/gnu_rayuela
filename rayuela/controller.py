@@ -319,9 +319,26 @@ class Controller:
 
     def delete_character(self, obj): view.error_dialog("Not implemented")
 
-    def new_location(self, obj): view.error_dialog("Not implemented")
+    def new_location(self, obj): 
+        profile = model.Location()
+        result = self.view.location_dialog(profile)
+        if result == gtk.RESPONSE_OK:
+            document = self._get_document_()
+            document.location.append(profile)
+            # Ask the model to notify the observers:
+            self.model.notify()
 
-    def edit_location(self, obj): view.error_dialog("Not implemented")
+    def edit_location(self, obj): 
+        tree = self.view.widget_tree.get_widget('location_treeview')
+        model, iter = tree.get_selection().get_selected()
+        if iter == None: return
+        page = model.get_value(iter, 1)
+        id = model.get_value(iter, 2)
+        document = self.model.get_document_by_page(page)
+        profile = document.get_location_by_id(id)
+        result = self.view.character_dialog(profile)
+        if result == gtk.RESPONSE_OK:
+            self.model.notify()
 
     def delete_location(self, obj): view.error_dialog("Not implemented")
                

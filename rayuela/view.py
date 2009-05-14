@@ -187,6 +187,8 @@ class View:
             notebook = self.widget_tree.get_widget("main_notebook")
             notebook.set_current_page(page)
             document = self.model.get_document_by_page(page)
+            if not id:
+                return
             if widget_name == 'character_treeview':
                 profile = document.get_character_by_id(id)
                 self.character_dialog(profile)
@@ -393,7 +395,84 @@ class View:
 
         return result
 
-    def location_dialog(self, profile): error_dialog("Not implemented")
+    def location_dialog(self, profile):
+
+        result = gtk.RESPONSE_CANCEL
+
+        widget_tree = gtk.glade.XML(self.glade_file, "location_dialog")
+        dialog = widget_tree.get_widget("location_dialog")
+        
+        if profile.id:
+            # Name
+            widget = widget_tree.get_widget("location_name_entry")
+            widget.set_text(profile.name)
+
+            # description
+            widget = widget_tree.get_widget("location_description_textview")
+            buffer = widget.get_buffer()
+            buffer.set_text(profile.description)
+
+            # landscape
+            widget = widget_tree.get_widget("location_landscape_textview")
+            buffer = widget.get_buffer()
+            buffer.set_text(profile.landscape)
+
+            # weather
+            widget = widget_tree.get_widget("location_weather_textview")
+            buffer = widget.get_buffer()
+            buffer.set_text(profile.weather)
+
+            # tradition
+            widget = widget_tree.get_widget("location_tradition_textview")
+            buffer = widget.get_buffer()
+            buffer.set_text(profile.weather)
+
+            # The dialog is modal by default. But it doesn't matter whether is
+            # modal or not, pygtk doesn't allow dialogs to be modal.
+            dialog.set_modal(True)
+            #.
+
+        else:
+            profile.set_id()
+
+        result = dialog.run()
+        if result == gtk.RESPONSE_OK:
+            
+            # Name
+            widget = widget_tree.get_widget("location_name_entry")
+            profile.name = widget.get_text()
+
+            # description
+            widget = widget_tree.get_widget("location_description_textview")
+            buffer = widget.get_buffer()
+            start = buffer.get_start_iter()
+            end = buffer.get_end_iter()
+            profile.description = buffer.get_text(start, end)
+            
+            # landscape
+            widget = widget_tree.get_widget("location_landscape_textview")
+            buffer = widget.get_buffer()
+            start = buffer.get_start_iter()
+            end = buffer.get_end_iter()
+            profile.landscape = buffer.get_text(start, end)
+
+            # weather
+            widget = widget_tree.get_widget("location_weather_textview")
+            buffer = widget.get_buffer()
+            start = buffer.get_start_iter()
+            end = buffer.get_end_iter()
+            profile.weather = buffer.get_text(start, end)
+            
+            # tradition
+            widget = widget_tree.get_widget("location_tradition_textview")
+            buffer = widget.get_buffer()
+            start = buffer.get_start_iter()
+            end = buffer.get_end_iter()
+            profile.tradition = buffer.get_text(start, end)
+        
+        dialog.destroy()
+
+        return result
         
     def _create_tag_table_(self):
         tag_table = gtk.TextTagTable()
