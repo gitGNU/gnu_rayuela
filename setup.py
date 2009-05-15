@@ -20,11 +20,14 @@ from distutils.core import setup
 
 setup (
     name = 'rayuela',
-    version = '0.1',
+    version = '0.2',
     description = 'Rayuela is novel writing editor.',
     author = 'Manuel Ospina',
     author_email = 'ospina.manuel@gmail.com',
     packages = ['rayuela'],
-    scripts=['scripts/rayuela']
+    scripts=['scripts/rayuela'],
+    data_files = [('share/rayuela/',['rayuela/glade/rayuela.glade', 
+                                     'README',
+                                     'COPYING'])],
     )
     

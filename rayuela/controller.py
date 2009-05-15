@@ -349,6 +349,6 @@ class Controller:
         view.info_dialog(txt) 
 
 if __name__ == "__main__":
-    from rayuela.glade import RAYUELA_GLADE_FILE 
+    RAYUELA_GLADE_FILE = 'glade/rayuela.glade'
     Controller(RAYUELA_GLADE_FILE)
     gtk.main()

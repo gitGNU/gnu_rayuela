@@ -17,6 +17,9 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import os
+import sys
 
-RAYUELA_GLADE_PATH = os.path.dirname(os.path.abspath(__file__))
+RAYUELA_DATA_DIR = os.path.join(sys.prefix, 'share')
+# RAYUELA_GLADE_PATH = os.path.dirname(os.path.abspath(__file__))
+RAYUELA_GLADE_PATH = os.path.join(RAYUELA_DATA_DIR, 'rayuela')
 RAYUELA_GLADE_FILE = os.path.join(RAYUELA_GLADE_PATH, 'rayuela.glade')
