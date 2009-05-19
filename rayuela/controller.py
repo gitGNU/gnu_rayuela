@@ -31,6 +31,7 @@ except:
 
 import model
 import view
+import configuration
 
 class Controller:
     
@@ -38,13 +39,19 @@ class Controller:
 
         self.model = model.Model()
         self.view = view.View(self, self.model, glade_file)
-        # [TODO]
-        # We need a session framework. 
-        # priority = low
-        #self.new(None)
-        #.
+        if "_latest_file_" in configuration.options:
+            filename = configuration.options["_latest_file_"]
+            current_page, textbuffer = self._get_page_()
+            self.model.open(current_page, textbuffer, filename)
+        else:
+            self.new(None)
 
     def quit(self, obj):
+        # [TODO]
+        # Priority: medium
+        # If the window is closed, check if the file has been saved.
+        #.
+        configuration.write_configuration()
         window = obj.get_toplevel()
         window.destroy()
         gtk.main_quit()
@@ -154,6 +161,7 @@ class Controller:
         filename = view.file_chooser('Open...', gtk.FILE_CHOOSER_ACTION_OPEN)
         current_page, textbuffer = self._get_page_()
         self.model.open(current_page, textbuffer, filename)
+        configuration.options["_latest_file_"] = filename
 
     def save(self, obj):
         document = self._get_document_()
@@ -166,6 +174,7 @@ class Controller:
         document = self._get_document_()
         filename = view.file_chooser('Save As...', gtk.FILE_CHOOSER_ACTION_SAVE)
         self.model.save(document, filename)
+        configuration.options["_latest_file_"] = filename
 
     def undo(self, obj): view.error_dialog("Not implemented")
 
