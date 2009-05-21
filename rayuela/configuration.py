@@ -47,7 +47,7 @@ def write_configuration(filename=RC_FILE):
     """Write the configuration File."""
     fh = open(filename, "w")
     for i in options.keys():
-        line = "%s = %s" % (i, options[i])
+        line = "%s = %s\n" % (i, options[i])
         fh.write(line)
     fh.close()
 

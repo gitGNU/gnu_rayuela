@@ -68,9 +68,10 @@ class Controller:
             if not textview:
                 view.error_dialog("Impossible to create a new page")
         current_page = notebook.get_current_page()
-        #textbuffer = textview.get_buffer()
+        # Create buffer, add signals, and set spellcheck
         textbuffer = gtk.TextBuffer(self.view.tag_table)
         textview.set_buffer(textbuffer)
+        self.view.set_spellcheck()
         return (current_page, textbuffer)
     
     def _get_document_(self):
@@ -303,7 +304,10 @@ class Controller:
     def justify_fill(self, obj): view.error_dialog("Not implemented")
     #.
 
-    def preferences(self, obj): view.error_dialog("Not implemented")
+    def preferences(self, obj):
+        result = self.view.preferences_dialog()
+        if result == gtk.RESPONSE_OK:
+            self.view.set_spellcheck()
     
     def new_character(self, obj): 
         profile = model.Character()

@@ -29,6 +29,8 @@ except:
     print "GTK is not installed"
     sys.exit(1)
 
+import configuration
+
 class View:
     
     def __init__(self, controller, model, glade_file):
@@ -474,6 +476,40 @@ class View:
 
         return result
         
+    def preferences_dialog(self):
+        result = gtk.RESPONSE_CANCEL
+
+        widget_tree = gtk.glade.XML(self.glade_file, "preferences_dialog")
+        dialog = widget_tree.get_widget("preferences_dialog")
+        
+        if "language" in configuration.options:
+            widget = widget_tree.get_widget("preferences_language_entry")
+            widget.set_text(configuration.options["language"])
+        
+        if "spellcheck" in configuration.options:
+            if configuration.options["spellcheck"] == "True":
+                spellcheck = True
+            else:
+                spellcheck = False
+            widget = widget_tree.get_widget("activate_spellcheck_checkbutton")
+            widget.set_active(spellcheck)
+
+        result = dialog.run()
+        if result == gtk.RESPONSE_OK:
+            
+            # Language
+            widget = widget_tree.get_widget("preferences_language_entry")
+            configuration.options["language"] = widget.get_text()
+
+            # Spellcheck?
+            widget = widget_tree.get_widget("activate_spellcheck_checkbutton")
+            configuration.options["spellcheck"] = str(widget.get_active())
+            
+        dialog.destroy()
+
+        return result
+
+
     def _create_tag_table_(self):
         tag_table = gtk.TextTagTable()
             
@@ -531,6 +567,18 @@ class View:
                 return children
         return None
         
+    def set_spellcheck(self): error_dialog("Not implemented")
+        # [TODO]
+        # priority: very high
+        #if 'spellcheck' in configuration.options:
+        #    activate_spellcheck = configuration.options["spellcheck"]
+        #    if activate_spellcheck:
+        #        spell = gtkspell.Spell(textview)
+        #    if 'language' in configuration.options:
+        #        language = configuration.options["language"]
+        #        if language:
+        #            spell.set_language(language)
+
     def update(self):
         project_tree = self.widget_tree.get_widget('project_treeview')
         project_store = project_tree.get_model()
