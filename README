@@ -1,0 +1,12 @@
+=======
+Rayuela
+=======
+
+Rayuela is a fiction writing editor.
+
+Prerequisites
+=============
+
+* Python GtkSpell 
+    In Fedora: yum install gnome-python2-gtkspell
+
