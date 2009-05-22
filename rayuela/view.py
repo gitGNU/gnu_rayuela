@@ -28,6 +28,11 @@ try:
 except:
     print "GTK is not installed"
     sys.exit(1)
+try:
+    import gtkspell
+except:
+    print "gtkspell is not installed"
+    sys.exit(1)
 
 import configuration
 
@@ -567,17 +572,37 @@ class View:
                 return children
         return None
         
-    def set_spellcheck(self): error_dialog("Not implemented")
-        # [TODO]
-        # priority: very high
-        #if 'spellcheck' in configuration.options:
-        #    activate_spellcheck = configuration.options["spellcheck"]
-        #    if activate_spellcheck:
-        #        spell = gtkspell.Spell(textview)
-        #    if 'language' in configuration.options:
-        #        language = configuration.options["language"]
-        #        if language:
-        #            spell.set_language(language)
+    def set_spellcheck(self):         
+        notebook = self.widget_tree.get_widget("main_notebook")
+        n_pages = notebook.get_n_pages()
+        for i in range(n_pages):
+            page = notebook.get_nth_page(i)
+            for children in page.get_children():
+                for child in children.get_children():
+                    if child.get_name() == 'textview':
+                        self._set_spellcheck_(child)
+
+    def _set_spellcheck_(self, textview):
+        if 'spellcheck' in configuration.options:
+            # Deactivate previous spell
+            try:
+                spell = gtkspell.get_from_text_view(textview)
+            except:
+                pass
+            else:
+                spell.detach()
+            # Activate new spell if necessary
+            activate_spellcheck = configuration.options["spellcheck"]
+            if activate_spellcheck == "True":
+                spell = gtkspell.Spell(textview)
+                # [TODO]
+                # Priority: medium/high
+                # Each project should have their own language settings.
+                if 'language' in configuration.options:
+                    language = configuration.options["language"]
+                    if language:
+                        spell.set_language(language)
+                #.
 
     def update(self):
         project_tree = self.widget_tree.get_widget('project_treeview')
