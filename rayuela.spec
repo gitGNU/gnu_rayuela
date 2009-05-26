@@ -5,8 +5,8 @@
 %define py_sitedir %{py_libdir}/site-packages
 
 %define name rayuela
-%define version 0.1
-%define release 6
+%define version 0.2
+%define release 1
 
 Summary: A fiction writing editor.
 Name: %{name}
