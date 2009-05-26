@@ -308,11 +308,10 @@ class Document(list):
             self.filepath, self.filename = os.path.split(filename)
         
         # Open tag:
-        document = '<manuscript>\n' # lang="%s"> % self.lang
+        document = '<rayuela>\n' # lang="%s"> % self.lang
 
         # sections:
         sections = "<toc>\n"
-        sections += self.synopsis.to_string()
         for section in self:
             sections += section.to_string()
         sections += "</toc>\n" 
@@ -335,13 +334,26 @@ class Document(list):
 
         document += locations
 
+        # Add manuscript:
+        manuscript = '<manuscript>\n'
+
+        # Add head:
+        head = '<head>\n'
+        # [TODO]
+        # priority: Very high
+        # Create summary/project class
+        #.
+        head += '</head>\n'
         # Add body:
         body = '<body>\n%s\n</body>\n' % txt.strip()
+        
+        manuscript += body
+        manuscript += '</manuscript>'
 
-        document += body
+        document += manuscript
 
         # Close tag:
-        document += '</manuscript>'
+        document += '</rayuela>'
 
         fh = open(filename, 'w')
         fh.write(document)
