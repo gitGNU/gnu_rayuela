@@ -213,20 +213,15 @@ class Loader:
                 self.document.buffer.create_mark(attrib['id'], cursor, True)
 
                 xml_tag = '<section id="%s">' % attrib['id']
-                self.document.buffer.insert_with_tags_by_name(cursor, 
-                                                              xml_tag, 
-                                                              "invisible")
+                self.document.buffer.insert(cursor, xml_tag)
 
         if tag == 'title':
             if self.stack[-1] == 'content':
                 cursor_mark = self.document.buffer.get_insert()
                 cursor = self.document.buffer.get_iter_at_mark(cursor_mark)
-                self.document.buffer.create_mark('startbold', cursor, True)
 
                 xml_tag = '<title>'
-                self.document.buffer.insert_with_tags_by_name(cursor, 
-                                                              xml_tag, 
-                                                              "invisible")
+                self.document.buffer.insert(cursor, xml_tag)
 
     def end(self, tag):
         if tag == 'sections':
@@ -245,20 +240,9 @@ class Loader:
             if self.stack[-1] == 'content':
                 cursor_mark = self.document.buffer.get_insert()
                 cursor = self.document.buffer.get_iter_at_mark(cursor_mark)
-                self.document.buffer.create_mark('endbold', cursor, False)
 
                 xml_tag = '</title>'
-                self.document.buffer.insert_with_tags_by_name(cursor, 
-                                                         xml_tag, 
-                                                         "invisible")
-                
-                start_mark = self.document.buffer.get_mark('startbold')
-                start = self.document.buffer.get_iter_at_mark(start_mark)
-                end_mark = self.document.buffer.get_mark('endbold')
-                end = self.document.buffer.get_iter_at_mark(end_mark)
-                self.document.buffer.apply_tag_by_name('bold', start, end)
-                self.document.buffer.delete_mark(start_mark)
-                self.document.buffer.delete_mark(end_mark)
+                self.document.buffer.insert(cursor, xml_tag)
                 
         if tag == 'rayuela':
             #self.content
@@ -291,7 +275,7 @@ class Header:
         if self.notes:
             result += '<notes>\n%s\n</notes>\n' % self.notes
         # Close tag
-        result += '</head>'
+        result += '</head>\n'
         return result
 
 class Document(list):
