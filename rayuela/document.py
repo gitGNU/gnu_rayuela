@@ -144,10 +144,6 @@ class Location:
 
 class Loader:
     
-    # [TODO]
-    # Priority: high
-    # I need to rewrite this class.
-    
     def __init__(self, document):
         self.stack = []
         self.content = ""
@@ -158,9 +154,9 @@ class Loader:
 
     def start(self, tag, attrib):
         # Map main sections:
-        if tag == 'manuscript':
+        if tag == 'rayuela':
             self.stack.append(tag)
-        if tag == 'toc':
+        if tag == 'sections':
             self.stack.append(tag)
         if tag == 'characters':
             self.stack.append(tag)
@@ -200,10 +196,10 @@ class Loader:
         if tag == 'section':
             if self.stack[-1] == 'sections':
                 if attrib['id'] == 'synopsis':
-                    self.document.synopsis.id = attrib['id']
-                    self.document.synopsis.title = attrib['title']
-                    self.document.synopsis.synopsis = attrib['synopsis']
-                    self.document.synopsis.notes = attrib['notes']
+                    #self.document.synopsis.id = attrib['id']
+                    self.document.head.title = attrib['title']
+                    self.document.head.summary = attrib['synopsis']
+                    self.document.head.notes = attrib['notes']
                 else:
                     section = Section()
                     section.id = attrib['id']
@@ -272,6 +268,32 @@ class Loader:
         if self.stack[-1] == 'content':
             self.document.buffer.insert_at_cursor(text)
 
+class Header:
+
+    def __init__(self):
+        self.title = ''
+        self.author = ''
+        self.language = ''
+        self.summary = ''
+        self.notes = ''
+
+    def to_string(self):
+        # Open tag
+        result = '<head>\n'
+        result += '<title>%s</title>\n' % self.title
+        # Adding optional elements
+        if self.author:
+            result += '<author>%s</author>\n' % self.author
+        if self.language:
+            result += '<language>%s</language>\n' % self.language
+        if self.summary:
+            result += '<summary>\n%s\n</summary>\n' % self.summary
+        if self.notes:
+            result += '<notes>\n%s\n</notes>\n' % self.notes
+        # Close tag
+        result += '</head>'
+        return result
+
 class Document(list):
     
     def __init__(self, page, buffer):
@@ -279,7 +301,7 @@ class Document(list):
 
         self.page = page
         self.buffer = buffer
-        self.synopsis = Section()
+        self.head = Header()
         self.character = []
         self.location = []
         self.filename = ''
@@ -288,12 +310,13 @@ class Document(list):
     def load_file(self, filename):
         assert os.path.isfile(filename)
         self.filepath, self.filename = os.path.split(filename)
-        # [TODO] priority: high
-        # Scan the file, put buffer tags and create section objects
+        # [TODO] 
+        # priority: high
+        # Use the python default xml library.
         import scanner
         fh = open(filename)
         scanner.scan(fh.read(), Loader(self))
-        #self.buffer.set_text(fh.read())
+        #.
         fh.close()
         #.
 
@@ -338,12 +361,8 @@ class Document(list):
         manuscript = '<manuscript>\n'
 
         # Add head:
-        head = '<head>\n'
-        # [TODO]
-        # priority: Very high
-        # Create summary/project class
-        #.
-        head += '</head>\n'
+        manuscript += self.head.to_string()
+
         # Add body:
         body = '<body>\n%s\n</body>\n' % txt.strip()
         
@@ -415,4 +434,9 @@ class Model:
             if hasattr(observer, "update"):
                 observer.update()
 
-if __name__ == "__main__": pass
+if __name__ == "__main__":
+    import sys
+    import gtk
+    d = Document(0, gtk.TextBuffer())
+    d.load_file(sys.argv[1])
+    d.dump_file(sys.argv[2])
