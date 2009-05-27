@@ -6,7 +6,7 @@
 
 %define name rayuela
 %define version 0.2
-%define release 1
+%define release 2
 
 Summary: A fiction writing editor.
 Name: %{name}
@@ -18,6 +18,7 @@ Group: Office
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Prefix: %{_prefix}
 BuildArch: noarch
+Requires: gnome-python2-gtkspell
 Vendor: Manuel Ospina <ospina.manuel@gmail.com>
 
 %description

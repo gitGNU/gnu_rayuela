@@ -2,6 +2,7 @@ COPYING
 README
 setup.py
 rayuela/__init__.py
+rayuela/configuration.py
 rayuela/controller.py
 rayuela/model.py
 rayuela/scanner.py

@@ -24,7 +24,7 @@ setup (
     description = 'Rayuela is novel writing editor.',
     author = 'Manuel Ospina',
     author_email = 'ospina.manuel@gmail.com',
-    packages = ['rayuela'],
+    packages = ['rayuela', 'rayuela.glade'],
     scripts=['scripts/rayuela'],
     data_files = [('share/rayuela/',['rayuela/glade/rayuela.glade', 
                                      'README',
