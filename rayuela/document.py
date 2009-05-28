@@ -316,7 +316,14 @@ class Document(list):
         txt = self.buffer.get_text(start, end)
         # [TODO]
         # priority: high
-        # Parse the txt, add <body>, <br /> and <p> tags...
+        # Parse the txt, add <body>, <br /> and <p> tags.
+        txt = txt.strip()
+        lines = txt.split('\n')
+        n = 0
+        for i in lines:
+            n += 1
+            print n, i
+        #.
 
     def dump_file(self, filename=''):
         start = self.buffer.get_start_iter()
@@ -401,4 +408,5 @@ if __name__ == "__main__":
     import gtk
     d = Document(0, gtk.TextBuffer())
     d.load_file(sys.argv[1])
-    d.dump_file(sys.argv[2])
+    #d.dump_file(sys.argv[2])
+    d.buffer_to_xml()
