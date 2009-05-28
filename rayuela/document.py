@@ -103,7 +103,7 @@ class Character:
             profile += '<notes>\n%s\n</notes>\n' % self.notes
         
         # Close tag
-        profile += '</character>'
+        profile += '</character>\n'
 
         return profile
 
@@ -124,7 +124,7 @@ class Location:
 
     def to_string(self):
         # Open tag
-        profile += '<location id="%s">\n' % self.id
+        profile = '<location id="%s">\n' % self.id
 
         # Add internal elements
         profile += '<name>%s</name>\n' % self.name
@@ -138,7 +138,7 @@ class Location:
             profile += '<tradition>\n%s\n</tradition>\n' % self.tradition
 
         # Close tag
-        profile += '</location\n>'
+        profile += '</location>\n'
 
         return profile
 
@@ -148,6 +148,7 @@ class Loader:
         self.stack = []
         self.content = ""
         self.document = document
+        self.first_section = True
 
     def xml(self, attrib):
         print "XML", attrib
@@ -208,11 +209,16 @@ class Loader:
                     section.notes = attrib['notes']
                     self.document.append(section)
             else:
+                if self.first_section:
+                    self.first_section = False
+                else:
+                    xml_tag = '</section>\n'
+                    self.document.buffer.insert_at_cursor(xml_tag)
                 cursor_mark = self.document.buffer.get_insert()
                 cursor = self.document.buffer.get_iter_at_mark(cursor_mark)
                 self.document.buffer.create_mark(attrib['id'], cursor, True)
 
-                xml_tag = '<section id="%s">' % attrib['id']
+                xml_tag = '<section id="%s">\n' % attrib['id']
                 self.document.buffer.insert(cursor, xml_tag)
 
         if tag == 'title':
@@ -295,7 +301,7 @@ class Document(list):
         assert os.path.isfile(filename)
         self.filepath, self.filename = os.path.split(filename)
         # [TODO] 
-        # priority: high
+        # priority: medium
         # Use the python default xml library.
         import scanner
         fh = open(filename)
@@ -303,6 +309,14 @@ class Document(list):
         #.
         fh.close()
         #.
+    
+    def buffer_to_xml(self):
+        start = self.buffer.get_start_iter()
+        end = self.buffer.get_end_iter()
+        txt = self.buffer.get_text(start, end)
+        # [TODO]
+        # priority: high
+        # Parse the txt, add <body>, <br /> and <p> tags...
 
     def dump_file(self, filename=''):
         start = self.buffer.get_start_iter()
@@ -381,42 +395,6 @@ class Document(list):
             if i.id == id:
                 return i
         return None
-
-class Model:
-    
-    observers = []
-    
-    def __init__(self):
-        self.documents = []
- 
-    def open(self, page, buffer, filename=''):
-        new_document = Document(page, buffer)
-        if filename:
-            new_document.load_file(filename)
-        self.documents.append(new_document)
-        self.notify()
-    
-    def save(self, document, filename=''):
-        document.dump_file(filename)
-        self.notify()
-
-    def get_document_by_page(self, page):
-        for i in self.documents:
-            if i.page == page:
-                return i
-        return None
-
-    # Observer Pattern:    
-    def register(self, observer):
-        self.observers.append(observer)
-
-    def remove(self, observer):
-        self.observers.delete(observer)
-
-    def notify(self):
-        for observer in self.observers:
-            if hasattr(observer, "update"):
-                observer.update()
 
 if __name__ == "__main__":
     import sys
