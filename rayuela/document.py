@@ -142,6 +142,150 @@ class Location:
 
         return profile
 
+#################################################
+# 
+# Buffer to XML
+#
+#################################################
+import re
+
+(INIT,
+ TITLE,
+ SECTION,
+ ENDSECTION,
+ HEADER,
+ PARA,
+ BREAK
+) = range(7)
+
+(STARTTAG, 
+ ENDTAG, 
+ TEXT) = range(1,4)
+
+seudo_xml = re.compile(r"""<(\w+).+?>       # 1. starttag
+                           |</(\w+)>        # 2. endtag
+                           |([^<>\n]+)      # 3. text strings
+                        """, re.VERBOSE)
+
+
+
+def scanner(txt):
+    result_list = []
+    scan = seudo_xml.scanner(txt)
+    while True:
+        m = scan.match()
+        if not m:
+            break
+        result_list.append([m.lastindex, m.group(m.lastindex)])
+    return result_list[0]
+
+def state_machine(document):
+    txt = ''
+    STATE = INIT
+    sections = False
+    lines = document.split('\n')
+    for line in lines:
+        if not line:
+            if STATE == PARA:
+                txt += '</p>\n'
+                STATE = BREAK
+            continue
+        token = scanner(line)
+        if STATE == INIT:
+            if token[0] == STARTTAG and token[1] == 'title':
+                txt += line
+                txt += '\n'
+                STATE = TITLE
+                continue
+            else:
+                assert False
+        if STATE == TITLE:
+            if token[0] == STARTTAG and token[1] == 'section':
+                txt += line
+                txt += '\n'
+                STATE = SECTION
+                sections = True
+                continue
+            elif token[0] == TEXT:
+                txt += '<p>\n'
+                txt += line
+                txt += '\n'
+                STATE = PARA
+                continue
+            else:
+                assert False
+        if STATE == SECTION:
+            if token[0] == STARTTAG and token[1] == 'title':
+                txt += line
+                txt += '\n'
+                STATE = HEADER
+                continue
+            else:
+                assert False
+        if STATE == HEADER:
+            if token[0] == ENDTAG and token[1] == 'section':
+                txt += line
+                txt += '\n'
+                STATE = ENDSECTION
+                continue
+            elif token[0] == TEXT:
+                txt += '<p>\n'
+                txt += line
+                txt += '\n'
+                STATE = PARA
+                continue
+            else:
+                assert False
+        if STATE == ENDSECTION:
+            if token[0] == STARTTAG and token[1] == 'section':
+                txt += line
+                txt += '\n'
+                STATE = SECTION
+                continue
+            elif token[0] == TEXT:
+                txt += '<p>\n'
+                txt += line
+                txt += '\n'
+                STATE = PARA
+                continue
+            else:
+                assert False
+        if STATE == PARA:
+            if token[0] == ENDTAG and token[1] == 'section':
+                txt += line
+                txt += '\n'
+                STATE = ENDSECTION
+                continue
+            elif token[0] == TEXT:
+                txt += '<br />\n'
+                txt += line
+                txt += '\n'
+                STATE = PARA
+                continue
+            else:
+                assert False
+    
+        if STATE == BREAK:
+            if token[0] == ENDTAG and token[1] == 'section':
+                txt += line
+                txt += '\n'
+                STATE = ENDSECTION
+                continue
+            elif token[0] == TEXT:
+                txt += '<p>\n'
+                txt += line
+                txt += '\n'
+                STATE = PARA
+                continue
+            else:
+                assert False
+
+    if sections and STATE != ENDSECTION:
+        txt += '</section>\n'
+
+    return txt
+#################################################
+
 class Loader:
     
     def __init__(self, document):
@@ -318,11 +462,12 @@ class Document(list):
         # priority: high
         # Parse the txt, add <body>, <br /> and <p> tags.
         txt = txt.strip()
-        lines = txt.split('\n')
-        n = 0
-        for i in lines:
-            n += 1
-            print n, i
+        return state_machine(txt)
+        #lines = txt.split('\n')
+        #n = 0
+        #for i in lines:
+        #    n += 1
+        #    print i
         #.
 
     def dump_file(self, filename=''):
@@ -369,7 +514,7 @@ class Document(list):
         manuscript += self.head.to_string()
 
         # Add body:
-        body = '<body>\n%s\n</body>\n' % txt.strip()
+        body = '<body>\n%s\n</body>\n' % self.buffer_to_xml() #txt.strip()
         
         manuscript += body
         manuscript += '</manuscript>'
@@ -408,5 +553,5 @@ if __name__ == "__main__":
     import gtk
     d = Document(0, gtk.TextBuffer())
     d.load_file(sys.argv[1])
-    #d.dump_file(sys.argv[2])
-    d.buffer_to_xml()
+    d.dump_file(sys.argv[2])
+    # d.buffer_to_xml()
